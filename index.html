@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Memory Game</title>
+  <!-- This is CDN for Bootstrap 5.2.3 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/redux@latest/dist/redux.min.js"></script>
+  <script src="https://unpkg.com/redux-thunk@latest/dist/redux-thunk.min.js"></script>
+</head>
+
+<body>
+  <div id="stats" class="d-flex justify-content-between">
+
+
+    <div id="timerSection">
+      <p>Time: <span id="timer">0</span></p>
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-bootstrap-reboot"
+        viewBox="0 0 16 16">
+        <path
+          d="M1.161 8a6.84 6.84 0 1 0 6.842-6.84.58.58 0 1 1 0-1.16 8 8 0 1 1-6.556 3.412l-.663-.577a.58.58 0 0 1 .227-.997l2.52-.69a.58.58 0 0 1 .728.633l-.332 2.592a.58.58 0 0 1-.956.364l-.643-.56A6.812 6.812 0 0 0 1.16 8z" />
+        <path
+          d="M6.641 11.671V8.843h1.57l1.498 2.828h1.314L9.377 8.665c.897-.3 1.427-1.106 1.427-2.1 0-1.37-.943-2.246-2.456-2.246H5.5v7.352h1.141zm0-3.75V5.277h1.57c.881 0 1.416.499 1.416 1.32 0 .84-.504 1.324-1.386 1.324h-1.6z" />
+      </svg>
+    </div>
+    <div>
+      <p>Remaining: <span id="remainingTerms">0</span></p>
+    </div>
+    <div id="scoreSection">
+      <p>Current score: <span id="score">0</span></p>
+      <p>Sessions best: <span id="sessionsBest"></span></p>
+    </div>
+  </div>
+  <!-- create a div for all memory cards -->
+  <div class="memoryCards d-flex justify-content-between">
+    <div class="termCards d-flex flex-column justify-content-around">
+
+    </div>
+    <div class="divider"></div>
+    <div class="definitionCards d-flex flex-column justify-content-around">
+
+    </div>
+
+  </div>
+  </div>
+  <div class="modal" tabindex="-1" id="memoryGameModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Modal title</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Modal body text goes here.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" id="startButton" class="btn btn-primary">Start the game</button>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+      crossorigin="anonymous"></script>
+
+    <!-- get createCardButton -->
+    <script src="./redux/scoreKeeper.js"></script>
+    <script src="createCardButton.js"></script>
+    <script src="checkPick.js"></script>
+    <script src="createTimer.js"></script>
+    <script src="shuffleArray.js"></script>
+    <script>
+
+      const modalTitle = document.querySelector(".modal-title");
+      modalTitle.textContent = "Memory Game";
+      const modalBody = document.querySelector(".modal-body");
+      modalBody.innerHTML = `<p>This is a memory game where you need to match the terms with the definitions. You have 60 seconds to complete the game. Good luck!</p>`;
+      // modalBody.textContent = "<p>You have won the game</p>";
+      const myModal = new bootstrap.Modal(document.getElementById('memoryGameModal'))
+      const timeDisplay = document.getElementById("timer");
+      const termCards = document.querySelector(".termCards");
+      const definitionCards = document.querySelector(".definitionCards");
+      // Get the current time
+      // Use the createTimer function to create a timer that updates the time display every second
+
+
+      let termsAndDefinitions
+      let timer = null;
+      const configureGame = async () => {
+        timer = createTimer();
+        // Get the data from the json file
+        const getData = async () => {
+          const response = await fetch("./elmTermsAndDefs.json");
+          const data = await response.json();
+          termsAndDefinitions = data;
+        }
+        await getData();
+
+        // set term count in the scoreStore to the length of the termsAndDefinitions object
+        scoreStore.dispatch(set_term_count(Object.keys(termsAndDefinitions).length - 1));
+
+
+        // Set the max number of terms (and definitions) to display
+        const maxTerms = 7;
+
+        // Get dom elements for the term and definition cards
+        let currentTermElements = [];
+        let currentDefinitionElements = [];
+        let currentIndex = 0;
+        for (let term in termsAndDefinitions) {
+          const definition = termsAndDefinitions[term];
+          currentTermElements.push(createCardButton(term, "term"));
+          currentDefinitionElements.push(createCardButton(definition, "definition"));
+          currentIndex++;
+          if (currentTermElements.length == maxTerms) {
+            break;
+          }
+        }
+        const remainingTerms = [];
+        const remainingDefinitions = [];
+
+        setInterval(() => {
+          // Get all the cards with class solved from the DOM
+          const solvedTerms = document.querySelectorAll(".term.solved");
+          const solvedDefinitions = document.querySelectorAll(".definition.solved");
+          if (solvedTerms.length >= 0 && remainingTerms.length < 6) {
+            currentIndex++;
+            if (currentIndex < Object.keys(termsAndDefinitions).length) {
+              // Get the next term and definition
+              const term = Object.keys(termsAndDefinitions)[currentIndex];
+              const definition = termsAndDefinitions[term];
+              remainingDefinitions.push(definition);
+              remainingTerms.push(term);
+            }
+          }
+          // If the number of solved is more than or equal to 4, then we need to check for more cards
+          if (solvedTerms.length >= 1) {
+            // get the solvedCard that has the term class
+            const solvedTermCard = solvedTerms[0];
+            // get the solvedCard that has the definition class
+            const solvedDefinitionCard = solvedDefinitions[0];
+            // Get a random term from the remaining terms
+            remainingTerm = remainingTerms.pop();
+            remainingDefinition = remainingDefinitions.pop();
+            if (remainingTerm && remainingDefinition) {
+              solvedTermCard.textContent = remainingTerm;
+              solvedDefinitionCard.textContent = remainingDefinition;
+
+              solvedTermCard.classList.remove("solved");
+              solvedDefinitionCard.classList.remove("solved");
+            }
+          }
+          // randomize remaining terms and definitions
+
+          remainingTerms.sort(() => Math.random() - 0.5);
+          remainingDefinitions.sort(() => Math.random() - 0.5);
+        }, 500);
+        // Shuffle the cards
+        currentTermElements = shuffleArray(currentTermElements);
+        currentDefinitionElements = shuffleArray(currentDefinitionElements);
+
+        // Add the cards to the DOM
+        termCards.append(...currentTermElements);
+        definitionCards.append(...currentDefinitionElements);
+      }
+      // Open the modal
+      // Add a click event listener to the start button
+      // When the start button is clicked, start the game
+      const startButton = document.getElementById("startButton");
+      startButton.addEventListener("click", () => {
+        myModal.hide();
+        configureGame();
+      });
+
+      myModal.show();
+    </script>
+</body>
+
+</html>

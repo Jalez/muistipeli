@@ -1,0 +1,19 @@
+{
+  "Memory": "The ability to store and retrieve information over time.",
+  "Storage": "The ability to store information permanently.",
+  "CPU": "The brain of the computer, processes data and instructions.",
+  "Motherboard": "The main circuit board of the computer, which connects all the parts together.",
+  "Hard Drive": "A storage device that holds all of the computer's files and programs.",
+  "Keyboard": "A device that allows you to enter data into the computer.",
+  "Mouse": "A device that allows you to control the cursor on the screen.",
+  "Monitor": "A device that displays information in visual form.",
+  "Printer": "A device that prints text and images.",
+  "Scanner": "A device that reads printed text and images and converts them to a digital form that can be edited on a computer.",
+  "Speakers": "A device that produces sound.",
+  "Webcam": "A device that allows you to take pictures and videos and send them over the internet.",
+  "Microphone": "A device that allows you to record sound.",
+  "Headphones": "A device that allows you to listen to sound.",
+  "Router": "A device that connects multiple computers to the internet.",
+  "Modem": "A device that allows you to connect to the internet.",
+  "Flash Drive": "A portable storage device that can be used to transfer files between computers."
+}

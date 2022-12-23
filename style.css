@@ -1,0 +1,97 @@
+body {
+  background-color: #f2f2f2;
+
+}
+
+.solved {
+  opacity: 0;
+}
+
+.unsolved {
+  opacity: 1;
+}
+
+.term,
+.definition {
+
+  transition: opacity 0.5s ease-in-out;
+  background-color: #ffffff;
+  /* min-width: 30%; */
+  max-width: 500px;
+  min-height: 70px;
+  overflow: auto;
+  /* margin: 1px; */
+  border-radius: 10px;
+}
+
+button.fade-out {
+  /* Set the button's final opacity when it is clicked */
+  opacity: 0;
+}
+
+/* create a highlight */
+button.highlight {
+  /* Highight the button */
+  background-color: #00bfff;
+}
+
+button.wrong {
+  /* Highight the button briefly*/
+  background-color: white;
+  /* Create an animation */
+  animation: test 0.2s;
+}
+
+/* Create the animation */
+@keyframes test {
+  0% {
+    opacity: 1;
+    background-color: #00bfff;
+  }
+
+
+  50% {
+    opacity: 0.9;
+    background-color: red;
+  }
+
+
+  100% {
+    opacity: 1;
+    background-color: white;
+
+  }
+}
+
+#stats {
+  margin: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #ffffff;
+  /* max-width: 500px; */
+}
+
+.memoryCards {
+  /* height: 700px; */
+}
+
+.termCards {
+  height: auto;
+  /* padding: 10px;
+  border-right: 4px dotted #ffffff */
+}
+
+.definitionCards {
+  height: auto;
+  /* padding: 10px;
+  border-left: 4px dotted #ffffff */
+}
+
+.divider {
+  height: auto;
+  /* width: 1px; */
+  /* background-color: #ffffff; */
+  margin: 10px;
+  display: inline-block;
+  border: 8px dotted #ffffff;
+}
